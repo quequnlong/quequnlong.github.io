@@ -158,6 +158,103 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-sql进行Order-by排序再进行分页limit取值会出现重复显示问题" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/07/22/sql%E8%BF%9B%E8%A1%8COrder-by%E6%8E%92%E5%BA%8F%E5%86%8D%E8%BF%9B%E8%A1%8C%E5%88%86%E9%A1%B5limit%E5%8F%96%E5%80%BC%E4%BC%9A%E5%87%BA%E7%8E%B0%E9%87%8D%E5%A4%8D%E6%98%BE%E7%A4%BA%E9%97%AE%E9%A2%98/">sql进行Order by排序再进行分页limit取值会出现重复显示问题</a>
+    </h1>
+  
+
+        
+        <a href="/2021/07/22/sql%E8%BF%9B%E8%A1%8COrder-by%E6%8E%92%E5%BA%8F%E5%86%8D%E8%BF%9B%E8%A1%8C%E5%88%86%E9%A1%B5limit%E5%8F%96%E5%80%BC%E4%BC%9A%E5%87%BA%E7%8E%B0%E9%87%8D%E5%A4%8D%E6%98%BE%E7%A4%BA%E9%97%AE%E9%A2%98/" class="archive-article-date">
+  	<time datetime="2021-07-22T08:26:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-07-22</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在实际开发中遇到一个有趣的问题，有关数据库order by排序不唯一，导致分页出现重复数据问题。<br>项目中需要对创建时间进行降序查询，每页显示3条<br>初始查询:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> material <span class="keyword">WHERE</span> <span class="number">1</span><span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> status <span class="operator">=</span> <span class="number">2</span> <span class="keyword">order</span> <span class="keyword">by</span> create_time <span class="keyword">desc</span> LIMIT <span class="number">3</span>,<span class="number">3</span>;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/22/sql%E8%BF%9B%E8%A1%8COrder-by%E6%8E%92%E5%BA%8F%E5%86%8D%E8%BF%9B%E8%A1%8C%E5%88%86%E9%A1%B5limit%E5%8F%96%E5%80%BC%E4%BC%9A%E5%87%BA%E7%8E%B0%E9%87%8D%E5%A4%8D%E6%98%BE%E7%A4%BA%E9%97%AE%E9%A2%98/1.jpg"></p>
+<p>俩张图对比我们可以清楚的看到id24的查询了俩次，我的解决方案进行SQL改写：先通过时间排序再通过Id排序，id是唯一字段</p>
+<p>修改后的sql:<br>初始查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> material <span class="keyword">WHERE</span> <span class="number">1</span><span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> status <span class="operator">=</span> <span class="number">2</span> <span class="keyword">order</span> <span class="keyword">by</span> create_time <span class="keyword">desc</span> ,id <span class="keyword">desc</span> LIMIT <span class="number">3</span>,<span class="number">3</span>;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/22/sql%E8%BF%9B%E8%A1%8COrder-by%E6%8E%92%E5%BA%8F%E5%86%8D%E8%BF%9B%E8%A1%8C%E5%88%86%E9%A1%B5limit%E5%8F%96%E5%80%BC%E4%BC%9A%E5%87%BA%E7%8E%B0%E9%87%8D%E5%A4%8D%E6%98%BE%E7%A4%BA%E9%97%AE%E9%A2%98/2.jpg"></p>
+<p>下一页查询:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> material <span class="keyword">WHERE</span> <span class="number">1</span><span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> status <span class="operator">=</span> <span class="number">2</span> <span class="keyword">order</span> <span class="keyword">by</span> create_time <span class="keyword">desc</span> ,id <span class="keyword">desc</span> LIMIT <span class="number">6</span>,<span class="number">3</span>;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/22/sql%E8%BF%9B%E8%A1%8COrder-by%E6%8E%92%E5%BA%8F%E5%86%8D%E8%BF%9B%E8%A1%8C%E5%88%86%E9%A1%B5limit%E5%8F%96%E5%80%BC%E4%BC%9A%E5%87%BA%E7%8E%B0%E9%87%8D%E5%A4%8D%E6%98%BE%E7%A4%BA%E9%97%AE%E9%A2%98/3.jpg"></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/mysql//" class="article-tag-list-link color1">mysql</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2021/07/22/sql%E8%BF%9B%E8%A1%8COrder-by%E6%8E%92%E5%BA%8F%E5%86%8D%E8%BF%9B%E8%A1%8C%E5%88%86%E9%A1%B5limit%E5%8F%96%E5%80%BC%E4%BC%9A%E5%87%BA%E7%8E%B0%E9%87%8D%E5%A4%8D%E6%98%BE%E7%A4%BA%E9%97%AE%E9%A2%98/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Hexo发布文章" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -188,7 +285,7 @@
 
 
 <p>然后在cmd中即可看到新建文章的路径（如上，在\Desktop\my_blog\source_posts\hello.md中），找到、编辑保存即可</p>
-<h2 id="编辑文章"><a href="#编辑文章" class="headerlink" title="编辑文章"></a><strong>编辑文章</strong></h2><p><img src="https://blues-img.oss-cn-beijing.aliyuncs.com/hexo.png?Expires=1626863431&OSSAccessKeyId=TMP.3KjREpQNg2EBprXxUmFvzRpnvJATwEnJL9xxqYbdDd2HbWjsyTNuxXYeRj7LymZ65na8cgQM8fH8QJUimWUgMUaqcqPurC&Signature=Q3M21h8udVsGJUlSjWDa/6t4uFA=&versionId=CAEQEhiBgICD1c2h1hciIGZhNzFmMWI2NWM0MjRhMjA5ZmE2Y2ZhNzRmMjc1OTJh&response-content-type=application/octet-stream"></p>
+<h2 id="编辑文章"><a href="#编辑文章" class="headerlink" title="编辑文章"></a><strong>编辑文章</strong></h2><p><img src="https://blues-img.oss-cn-beijing.aliyuncs.com/hexo.png?Expires=1626945816&OSSAccessKeyId=TMP.3Kh2gkhhzPHXrEeCr5TsuW9B1yYzTrooH1NXeMZD8dZjgp1tpevcwb5uej7oQwhxryES3cs7TBfWZPKpxizEnLHfGcqrYm&Signature=nS4VL5G9F7nQGek3CtWdinU62SU=&versionId=CAEQEhiBgICD1c2h1hciIGZhNzFmMWI2NWM0MjRhMjA5ZmE2Y2ZhNzRmMjc1OTJh&response-content-type=application/octet-stream"></p>
 <p>如图，.md文件就是用markdown编辑的，hello文件就是保存图片的，其中hello.md中调用hello文件中的图片时使用相对路径</p>
 <p>本地调试</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo server</span><br></pre></td></tr></table></figure>
@@ -368,6 +465,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">– Hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
             
             <div class="clearfix"></div>
