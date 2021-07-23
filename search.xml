@@ -13,7 +13,7 @@
 
 
 <p>然后在cmd中即可看到新建文章的路径（如上，在\Desktop\my_blog\source_posts\hello.md中），找到、编辑保存即可</p>
-<h2 id="编辑文章"><a href="#编辑文章" class="headerlink" title="编辑文章"></a><strong>编辑文章</strong></h2><p><img src="https://blues-img.oss-cn-beijing.aliyuncs.com/hexo.png?Expires=1626945816&OSSAccessKeyId=TMP.3Kh2gkhhzPHXrEeCr5TsuW9B1yYzTrooH1NXeMZD8dZjgp1tpevcwb5uej7oQwhxryES3cs7TBfWZPKpxizEnLHfGcqrYm&Signature=nS4VL5G9F7nQGek3CtWdinU62SU=&versionId=CAEQEhiBgICD1c2h1hciIGZhNzFmMWI2NWM0MjRhMjA5ZmE2Y2ZhNzRmMjc1OTJh&response-content-type=application/octet-stream"></p>
+<h2 id="编辑文章"><a href="#编辑文章" class="headerlink" title="编辑文章"></a><strong>编辑文章</strong></h2><p><img src="/2021/07/21/Hexo%E5%8F%91%E5%B8%83%E6%96%87%E7%AB%A0/1.png"></p>
 <p>如图，.md文件就是用markdown编辑的，hello文件就是保存图片的，其中hello.md中调用hello文件中的图片时使用相对路径</p>
 <p>本地调试</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">hexo server</span><br></pre></td></tr></table></figure>
